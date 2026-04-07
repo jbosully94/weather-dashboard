@@ -22,15 +22,14 @@ st.markdown("---")
 # Cached so it doesn't reload every time user interacts with the dashboard
 @st.cache_data
 def load_data():
-    # Authenticate with service account from Streamlit secrets
+    # connect to drive
     creds_dict = dict(st.secrets["gcp_service_account"])
     scope = ["https://www.googleapis.com/auth/drive"]
-    credentials = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
     gauth = GoogleAuth()
-    gauth.credentials = credentials
+    gauth.credentials = creds
     drive = GoogleDrive(gauth)
 
-    # Download the h5 file to a temp file
     file_id = "19kQ2Ky97Qx2M_fIpDGBgS-vTEh9EjHlC"
     gfile = drive.CreateFile({"id": file_id})
     with tempfile.NamedTemporaryFile(suffix=".h5", delete=False) as tmp:
