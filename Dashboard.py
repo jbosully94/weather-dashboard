@@ -4,6 +4,10 @@ import h5py
 from datetime import datetime
 import plotly.graph_objects as go
 import pandas as pd
+import tempfile
+from pydrive2.auth import GoogleAuth
+from pydrive2.drive import GoogleDrive
+from oauth2client.service_account import ServiceAccountCredentials
 
 # Configure the page
 st.set_page_config(
@@ -14,15 +18,28 @@ st.set_page_config(
 st.title("Weather Data Dashboard")
 st.markdown("---")
 
-# Load data from h5 file
+# Load data from Google Drive
 # Cached so it doesn't reload every time user interacts with the dashboard
 @st.cache_data
 def load_data():
-    with h5py.File('/Users/james/bme280_data.h5', 'r') as f:
-        humidity = f["humidity"][:]
-        pressure = f["pressure"][:]
-        temperature = f["temperature"][:]
-        timestamp = f["timestamp"][:]
+    # Authenticate with service account from Streamlit secrets
+    creds_dict = dict(st.secrets["gcp_service_account"])
+    scope = ["https://www.googleapis.com/auth/drive"]
+    credentials = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+    gauth = GoogleAuth()
+    gauth.credentials = credentials
+    drive = GoogleDrive(gauth)
+
+    # Download the h5 file to a temp file
+    file_id = "19kQ2Ky97Qx2M_fIpDGBgS-vTEh9EjHlC"
+    gfile = drive.CreateFile({"id": file_id})
+    with tempfile.NamedTemporaryFile(suffix=".h5", delete=False) as tmp:
+        gfile.GetContentFile(tmp.name)
+        with h5py.File(tmp.name, 'r') as f:
+            humidity = f["humidity"][:]
+            pressure = f["pressure"][:]
+            temperature = f["temperature"][:]
+            timestamp = f["timestamp"][:]
     
     # Convert unix timestamps to datetime
     times = [datetime.fromtimestamp(ts) for ts in timestamp]

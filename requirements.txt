@@ -2,3 +2,5 @@ streamlit
 h5py
 plotly
 pandas
+pydrive2
+oauth2client
