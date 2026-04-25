@@ -20,7 +20,7 @@ st.markdown("---")
 
 # Load data from Google Drive
 # Cached so it doesn't reload every time user interacts with the dashboard
-@st.cache_data
+@st.cache_data(ttl=300)
 def load_data():
     # connect to drive
     creds_dict = dict(st.secrets["gcp_service_account"])
