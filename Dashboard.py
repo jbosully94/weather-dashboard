@@ -55,6 +55,16 @@ def load_data():
 
 df = load_data()
 
+# Current conditions
+latest = df.iloc[-1]
+st.subheader(f"Current conditions ({latest['time'].strftime('%Y-%m-%d %H:%M')})")
+col1, col2, col3 = st.columns(3)
+col1.metric("Temperature", f"{latest['temperature']:.1f} °C")
+col2.metric("Humidity", f"{latest['humidity']:.1f} %")
+col3.metric("Pressure", f"{latest['pressure']:.1f} hPa")
+st.markdown("---")
+
+
 # Sidebar controls
 st.sidebar.header("Controls")
 
