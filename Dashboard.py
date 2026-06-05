@@ -2,6 +2,7 @@
 import streamlit as st
 import h5py
 from datetime import datetime
+from zoneinfo import ZoneInfo
 import plotly.graph_objects as go
 import pandas as pd
 import tempfile
@@ -40,8 +41,10 @@ def load_data():
             temperature = f["temperature"][:]
             timestamp = f["timestamp"][:]
     
-    # Convert unix timestamps to datetime
+    #Convert unix timestamps to local time
     times = [datetime.fromtimestamp(ts) for ts in timestamp]
+    tz = ZoneInfo("America/Chicago")
+    times = [datetime.fromtimestamp(ts, tz=tz) for ts in timestamp]
     
     # Put everything in a dataframe for easier manipulation
     df = pd.DataFrame({
