@@ -158,6 +158,7 @@ if show_dew_point:
     st.subheader("Dew Point")
     
     fig_dew_point = go.Figure()
+    
     fig_dew_point.add_trace(go.Scatter(
         x=filtered_df['time'],
         y=filtered_df['dew_point'],
@@ -166,14 +167,22 @@ if show_dew_point:
         line=dict(color='blue', width=2)
     ))
     
+    # Add the background comfort zones
+    fig_dew_point.add_hrect(y0=-50, y1=13, line_width=0, fillcolor="green", opacity=0.1)
+    fig_dew_point.add_hrect(y0=13, y1=18, line_width=0, fillcolor="yellow", opacity=0.1)
+    fig_dew_point.add_hrect(y0=18, y1=50, line_width=0, fillcolor="red", opacity=0.1)
+    
     fig_dew_point.update_layout(
-        yaxis_title="Dew Point (°C)",
+        yaxis_title="Dew Point (C)",
         xaxis_title="Time",
         hovermode='x unified',
-        height=300  # Matches the height of your pressure plot
+        height=300
     )
     
     st.plotly_chart(fig_dew_point, width='stretch')
+    
+    #description
+    st.caption("Comfortable: < 13C | Sticky: 13C - 18C | Oppressive: > 18C")
 
 
 # Pressure plot (separate)
