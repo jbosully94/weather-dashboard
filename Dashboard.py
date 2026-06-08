@@ -229,5 +229,5 @@ if st.checkbox("Show Raw Data"):
 
 #melbourne weather
 st.subheader("Melbourne v Chicago")
-mel = get_melbourne_history()
+mel = get_melbourne_weather()
 st.line_chart(mel, x="time", y="temperature")
