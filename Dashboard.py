@@ -1,6 +1,7 @@
 # Import required libraries
 import streamlit as st
 import h5py
+import numpy as np
 from datetime import datetime
 from zoneinfo import ZoneInfo
 import plotly.graph_objects as go
@@ -46,13 +47,18 @@ def load_data():
     tz = ZoneInfo("America/Chicago")
     times = [datetime.fromtimestamp(ts, tz=tz) for ts in timestamp]
     
-    # Put everything in a dataframe for easier manipulation
+    # df are easier to deal with.
     df = pd.DataFrame({
         'time': times,
         'temperature': temperature,
         'humidity': humidity,
         'pressure': pressure
     })
+    #Dew point calculation using Magnus formula. Meant to be the most accurate.
+    a = 17.27
+    b = 237.7
+    alpha = ((a * df['temperature']) / (b + df['temperature'])) + np.log(df['humidity'] / 100.0)
+    df['dew_point'] = (b * alpha) / (a - alpha)
     
     return df
 
@@ -61,10 +67,12 @@ df = load_data()
 # Current conditions
 latest = df.iloc[-1]
 st.subheader(f"Current conditions ({latest['time'].strftime('%Y-%m-%d %H:%M')})")
-col1, col2, col3 = st.columns(3)
+col1, col2, col3, col4 = st.columns(4)
 col1.metric("Temperature", f"{latest['temperature']:.1f} °C")
 col2.metric("Humidity", f"{latest['humidity']:.1f} %")
 col3.metric("Pressure", f"{latest['pressure']:.1f} hPa")
+col4.metric("Dew Point", f"{latest['dew_point']:.1f} °C")
+
 st.markdown("---")
 
 
@@ -80,6 +88,7 @@ date_range = st.sidebar.date_input(
 
 show_temp = st.sidebar.checkbox("Show Temperature", value=True)
 show_humidity = st.sidebar.checkbox("Show Humidity", value=True)
+show_dew_point = st.sidebar.checkbox("Show Dew Point", value=True)
 show_pressure = st.sidebar.checkbox("Show Pressure", value=True)
 
 # Filter data based on selected date range
@@ -144,6 +153,28 @@ if show_temp or show_humidity:
     )
     
     st.plotly_chart(fig_temp_humidity, width='stretch')
+#dew point
+if show_dew_point:
+    st.subheader("Dew Point")
+    
+    fig_dew_point = go.Figure()
+    fig_dew_point.add_trace(go.Scatter(
+        x=filtered_df['time'],
+        y=filtered_df['dew_point'],
+        mode='lines',
+        name='Dew Point',
+        line=dict(color='blue', width=2)
+    ))
+    
+    fig_dew_point.update_layout(
+        yaxis_title="Dew Point (°C)",
+        xaxis_title="Time",
+        hovermode='x unified',
+        height=300  # Matches the height of your pressure plot
+    )
+    
+    st.plotly_chart(fig_dew_point, width='stretch')
+
 
 # Pressure plot (separate)
 if show_pressure:
