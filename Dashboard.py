@@ -2,6 +2,7 @@
 import streamlit as st
 import h5py
 import numpy as np
+import requests
 from datetime import datetime
 from zoneinfo import ZoneInfo
 import plotly.graph_objects as go
@@ -62,7 +63,21 @@ def load_data():
     
     return df
 
+#melbourne weather
+@st.cache_data(ttl=300)  # how often to hit the weather data
+def get_melbourne_weather():
+    url = "https://api.open-meteo.com/v1/forecast"
+    params = {
+        "latitude": -37.81,
+        "longitude": 144.96,
+        "current": "temperature_2m,relative_humidity_2m,surface_pressure",
+        "timezone": "Australia/Melbourne",
+    }
+    r = requests.get(url, params=params, timeout=10)
+    return r.json()["current"]
+
 df = load_data()
+
 
 # Current conditions
 latest = df.iloc[-1]
@@ -210,3 +225,11 @@ if show_pressure:
 # Optional data table view
 if st.checkbox("Show Raw Data"):
     st.dataframe(filtered_df)
+
+#melbourne weather
+st.subheader("Meanwhile in Melbourne")
+mel = get_melbourne_weather()
+mc1, mc2, mc3 = st.columns(3)
+mc1.metric("Temperature", f"{mel['temperature_2m']:.1f} °C")
+mc2.metric("Humidity", f"{mel['relative_humidity_2m']:.0f} %")
+mc3.metric("Pressure", f"{mel['surface_pressure']:.1f} hPa")
