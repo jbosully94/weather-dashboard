@@ -168,9 +168,9 @@ if show_dew_point:
     ))
     
     # Add the background comfort zones
-    fig_dew_point.add_hrect(y0=-50, y1=13, line_width=0, fillcolor="green", opacity=0.1)
+    fig_dew_point.add_hrect(y0=0, y1=13, line_width=0, fillcolor="green", opacity=0.1)
     fig_dew_point.add_hrect(y0=13, y1=18, line_width=0, fillcolor="yellow", opacity=0.1)
-    fig_dew_point.add_hrect(y0=18, y1=50, line_width=0, fillcolor="red", opacity=0.1)
+    fig_dew_point.add_hrect(y0=18, y1=30, line_width=0, fillcolor="red", opacity=0.1)
     
     fig_dew_point.update_layout(
         yaxis_title="Dew Point (C)",
