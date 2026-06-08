@@ -70,11 +70,12 @@ def get_melbourne_weather():
     params = {
         "latitude": -37.81,
         "longitude": 144.96,
-        "current": "temperature_2m,relative_humidity_2m,surface_pressure",
+        "hourly": "temperature_2m",
+        "past_days": 2,
         "timezone": "Australia/Melbourne",
     }
-    r = requests.get(url, params=params, timeout=10)
-    return r.json()["current"]
+    h = requests.get(url, params=params, timeout=10).json()["hourly"]
+    return pd.DataFrame({"time": h["time"], "temperature": h["temperature_2m"]})
 
 df = load_data()
 
@@ -227,9 +228,6 @@ if st.checkbox("Show Raw Data"):
     st.dataframe(filtered_df)
 
 #melbourne weather
-st.subheader("Meanwhile in Melbourne")
-mel = get_melbourne_weather()
-mc1, mc2, mc3 = st.columns(3)
-mc1.metric("Temperature", f"{mel['temperature_2m']:.1f} °C")
-mc2.metric("Humidity", f"{mel['relative_humidity_2m']:.0f} %")
-mc3.metric("Pressure", f"{mel['surface_pressure']:.1f} hPa")
+st.subheader("Melbourne v Chicago")
+mel = get_melbourne_history()
+st.line_chart(mel, x="time", y="temperature")
