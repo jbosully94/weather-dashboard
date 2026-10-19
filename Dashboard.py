@@ -44,7 +44,7 @@ def load_data():
     a, b = 17.27, 237.7
     alpha = a * df["temperature"] / (b + df["temperature"]) + np.log(df["humidity"] / 100)
     df["dew_point"] = b * alpha / (a - alpha)
-    return df
+    return df.sort_values("time", ignore_index=True)
 
 
 @st.cache_data(ttl=900)
