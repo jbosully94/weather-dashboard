@@ -274,7 +274,7 @@ def rain_card(fc, start):
         with right:
             show(rain_chart(fc[fc["time"] >= start]))
 
-        note = "Chance of rain in the next 6 hours, predicted from this barometer alone. A guide, not a forecast service."
+        note = "Chance of rain in the next 6 hours, predicted change in barometric pressure."
         if latest["sensor_hours"] < 25:
             note += " (partly using Open-Meteo pressure while the sensor builds up history)"
         st.caption(note)
