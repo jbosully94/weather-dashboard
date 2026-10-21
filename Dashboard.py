@@ -16,6 +16,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 TZ = "America/Chicago"
 FILE_ID = "19kQ2Ky97Qx2M_fIpDGBgS-vTEh9EjHlC"
 WINDOWS = {"24 h": 1, "3 days": 3, "7 days": 7, "30 days": 30, "All": None}
+SMOOTHING = {"24 h": "5min", "3 days": "15min", "7 days": "30min", "30 days": "1h", "All": "1h"}
 COLOURS = {
     "temperature": "#eb6834",
     "dew_point": "#1baf7a",
@@ -282,10 +283,8 @@ def rain_card(fc, start):
 
 def window_view(df, start, choice):
     view = df[df["time"] >= start]
-    # Long windows are averaged hourly so the charts stay quick
-    if choice in ("30 days", "All"):
-        view = view.resample("1h", on="time").mean().reset_index()
-    return view
+    # Averaging removes sensor jitter on short windows and keeps long windows quick
+    return view.resample(SMOOTHING[choice], on="time").mean().reset_index()
 
 
 def melbourne(df, start, now):
